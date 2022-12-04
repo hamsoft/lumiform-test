@@ -9,6 +9,7 @@ class Question extends Model
     use HasFactory;
 
     public const TABLE = 'questions';
+    public const MODEL_TYPE = 'question';
 
     public const TITLE = 'title';
     public const IMAGE_ID = 'image_id';
