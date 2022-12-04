@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Page;
 use App\Models\Question;
 use App\Models\Section;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -29,6 +30,7 @@ class AppServiceProvider extends ServiceProvider
         Relation::enforceMorphMap([
             Question::MODEL_TYPE => Question::class,
             Section::MODEL_TYPE => Section::class,
+            Page::MODEL_TYPE => Page::class,
         ]);
     }
 }
