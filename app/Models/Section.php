@@ -9,6 +9,7 @@ class Section extends Model
     use HasFactory;
 
     const TABLE = 'sections';
+    const MODEL_TYPE = 'section';
 
     const TITLE = 'title';
     const REPEAT = 'repeat';
