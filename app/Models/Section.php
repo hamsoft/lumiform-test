@@ -8,11 +8,11 @@ class Section extends Model
 {
     use HasFactory;
 
-    const TABLE = 'sections';
-    const MODEL_TYPE = 'section';
+    public const TABLE = 'sections';
+    public const MODEL_TYPE = 'section';
 
-    const TITLE = 'title';
-    const REPEAT = 'repeat';
-    const WEIGHT = 'weight';
-    const REQUIRED = 'required';
+    public const TITLE = 'title';
+    public const REPEAT = 'repeat';
+    public const WEIGHT = 'weight';
+    public const REQUIRED = 'required';
 }
