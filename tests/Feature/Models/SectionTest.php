@@ -23,11 +23,4 @@ class SectionTest extends TestCase
             Section::REQUIRED,
         ]);
     }
-
-    public function testCreate()
-    {
-        $section = Section::factory()->create();
-
-        $this->assertModelExists($section);
-    }
 }

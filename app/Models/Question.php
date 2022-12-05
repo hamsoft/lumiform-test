@@ -2,9 +2,21 @@
 
 namespace App\Models;
 
+use App\Models\Form\FormItemElement;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Question extends Model
+/**
+ * @property string $title
+ * @property string $image_id
+ * @property boolean $negative
+ * @property boolean $notes_allowed
+ * @property boolean $photos_allowed
+ * @property boolean $issues_allowed
+ * @property boolean $responded
+ * @property boolean $required
+ * @property string $response_type
+ */
+class Question extends Model implements FormItemElement
 {
     use HasFactory;
 
@@ -23,6 +35,15 @@ class Question extends Model
 
     public const RESPONSE_TYPES = ['list'];
 
+    protected $casts = [
+        self::NEGATIVE => 'boolean',
+        self::NOTES_ALLOWED => 'boolean',
+        self::PHOTOS_ALLOWED => 'boolean',
+        self::ISSUES_ALLOWED => 'boolean',
+        self::RESPONDED => 'boolean',
+        self::REQUIRED => 'boolean',
+    ];
+
     protected $fillable = [
         self::TITLE,
         self::IMAGE_ID,
@@ -34,4 +55,19 @@ class Question extends Model
         self::REQUIRED,
         self::RESPONSE_TYPE,
     ];
+
+    public function getUuid(): string
+    {
+        return $this->uuid;
+    }
+
+    public function getElementType(): string
+    {
+        return self::MODEL_TYPE;
+    }
+
+    public function getTitle(): string
+    {
+        return $this->title;
+    }
 }

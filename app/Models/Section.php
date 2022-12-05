@@ -2,9 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Form\FormItemElement;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Section extends Model
+/**
+ * @property string $title
+ * @property boolean $repeat
+ * @property integer $weight
+ * @property boolean $required
+ */
+class Section extends Model implements FormItemElement
 {
     use HasFactory;
 
@@ -15,4 +22,26 @@ class Section extends Model
     public const REPEAT = 'repeat';
     public const WEIGHT = 'weight';
     public const REQUIRED = 'required';
+
+    public function getUuid(): string
+    {
+        return $this->uuid;
+    }
+
+    public function getElementType(): string
+    {
+        return self::MODEL_TYPE;
+    }
+
+    protected $fillable = [
+        self::TITLE,
+        self::REPEAT,
+        self::WEIGHT,
+        self::REQUIRED,
+    ];
+
+    public function getTitle(): string
+    {
+        return $this->title;
+    }
 }

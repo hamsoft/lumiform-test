@@ -20,3 +20,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::post('/form', [FormController::class, 'createNewForm']);
+Route::get('/form/{id}', [FormController::class, 'getForm']);

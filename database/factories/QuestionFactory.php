@@ -4,8 +4,10 @@ namespace Database\Factories;
 
 use App\Models\Question;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Model;
 
 /**
+ * @method \Illuminate\Database\Eloquent\Collection<Question>|Question create($attributes = [], ?Model $parent = null)
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Question>
  */
 class QuestionFactory extends Factory

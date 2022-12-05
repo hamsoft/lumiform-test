@@ -29,11 +29,4 @@ class QuestionTest extends TestCase
             Question::RESPONSE_TYPE,
         ]);
     }
-
-    public function testCreate()
-    {
-        $question = Question::factory()->create();
-
-        $this->assertModelExists($question);
-    }
 }
