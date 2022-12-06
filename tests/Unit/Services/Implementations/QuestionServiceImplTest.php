@@ -7,7 +7,7 @@ use App\Services\QuestionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class EloquentQuestionServiceTest extends TestCase
+class QuestionServiceImplTest extends TestCase
 {
     use RefreshDatabase;
 

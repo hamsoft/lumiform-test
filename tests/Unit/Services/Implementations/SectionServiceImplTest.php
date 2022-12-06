@@ -7,7 +7,7 @@ use App\Services\SectionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class EloquentSectionServiceImplTest extends TestCase
+class SectionServiceImplTest extends TestCase
 {
     use RefreshDatabase;
 

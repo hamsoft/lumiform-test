@@ -7,7 +7,7 @@ use App\Services\PageService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class EloquentPageServiceTest extends TestCase
+class PageServiceImplTest extends TestCase
 {
     use RefreshDatabase;
 
