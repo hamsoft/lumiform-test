@@ -3,11 +3,11 @@
 namespace Tests\Unit\Services\Implementations;
 
 use App\Models\Section;
-use App\Services\Implementations\SectionService;
+use App\Services\SectionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class EloquentSectionServiceTest extends TestCase
+class EloquentSectionServiceImplTest extends TestCase
 {
     use RefreshDatabase;
 

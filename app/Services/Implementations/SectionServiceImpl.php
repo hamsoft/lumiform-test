@@ -5,7 +5,7 @@ namespace App\Services\Implementations;
 use App\Models\Section;
 use App\Services\SectionService as SectionServiceInterface;
 
-class SectionService implements SectionServiceInterface
+class SectionServiceImpl implements SectionServiceInterface
 {
     public function findByUuidOrCreate(iterable $data): Section
     {

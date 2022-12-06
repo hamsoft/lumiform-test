@@ -5,7 +5,7 @@ namespace App\Services\Implementations;
 use App\Models\Page;
 use App\Services\PageService as PageServiceInterface;
 
-class PageService implements PageServiceInterface
+class PageServiceImpl implements PageServiceInterface
 {
     public function findByUuidOrCreate(iterable $data): Page
     {

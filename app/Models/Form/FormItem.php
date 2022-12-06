@@ -11,6 +11,8 @@ use App\Models\Section;
  * @property string $element_uuid
  * @property string $element_type
  * @property \App\Models\Form\FormItemElement $element
+ * @method |static whereElementTypeQuestion()
+ * @method |static whereFormUuid($uuid)
  */
 class FormItem extends Model
 {
@@ -21,6 +23,7 @@ class FormItem extends Model
     public const ELEMENT_TYPE = 'element_type';
     public const PARENT_UUID = 'parent_uuid';
     public const PARENT_TYPE = 'parent_type';
+    public const RELATION_ELEMENT = 'element';
 
     protected $table = self::TABLE;
 
@@ -43,6 +46,11 @@ class FormItem extends Model
 
     public function element()
     {
-        return $this->morphTo('element', self::ELEMENT_TYPE, self::ELEMENT_UUID);
+        return $this->morphTo(self::RELATION_ELEMENT, self::ELEMENT_TYPE, self::ELEMENT_UUID);
+    }
+
+    public function scopeWhereElementTypeQuestion($query)
+    {
+        return $query->where(self::ELEMENT_TYPE, Question::MODEL_TYPE);
     }
 }

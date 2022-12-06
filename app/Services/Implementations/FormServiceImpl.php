@@ -8,7 +8,7 @@ use App\Services\Form\FormItemService as FormItemService;
 use App\Services\FormService as FormServiceInterface;
 use Illuminate\Support\Facades\DB;
 
-class FormService implements FormServiceInterface
+class FormServiceImpl implements FormServiceInterface
 {
     /**
      * @var \App\Services\Form\FormItemService

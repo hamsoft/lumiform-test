@@ -2,11 +2,13 @@
 
 namespace App\Services\Implementations;
 
+use App\Collections\QuestionCollection;
+use App\Models\Form\FormItem;
 use App\Models\Question;
 use App\Services\QuestionService as QuestionServiceInterface;
 use Illuminate\Validation\Rule;
 
-class QuestionService implements QuestionServiceInterface
+class QuestionServiceImpl implements QuestionServiceInterface
 {
     public function findByUuidOrCreate(iterable $data): Question
     {
@@ -33,5 +35,16 @@ class QuestionService implements QuestionServiceInterface
                 Rule::in(Question::RESPONSE_TYPES),
             ],
         ];
+    }
+
+    public function getFormQuestionsByFormUuid(string $formUuid): QuestionCollection
+    {
+        $formItemsSubQuery = FormItem::query()
+            ->whereElementTypeQuestion()
+            ->whereFormUuid($formUuid)
+            ->select(FormItem::ELEMENT_UUID)
+            ->getQuery();
+
+        return Question::query()->whereIn(Question::UUID, $formItemsSubQuery)->get();
     }
 }

@@ -3,7 +3,7 @@
 namespace Tests\Unit\Services\Implementations;
 
 use App\Models\Page;
-use App\Services\Implementations\PageService;
+use App\Services\PageService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

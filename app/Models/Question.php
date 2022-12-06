@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Collections\QuestionCollection;
+use App\Models\Form\FormItem;
 use App\Models\Form\FormItemElement;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -15,6 +17,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property boolean $responded
  * @property boolean $required
  * @property string $response_type
+ * @method QuestionCollection get()
  */
 class Question extends Model implements FormItemElement
 {
@@ -32,6 +35,8 @@ class Question extends Model implements FormItemElement
     public const RESPONDED = 'responded';
     public const REQUIRED = 'required';
     public const RESPONSE_TYPE = 'response_type';
+
+    public const RELATION_FORM_ITEM = 'formItems';
 
     public const RESPONSE_TYPES = ['list'];
 
@@ -69,5 +74,20 @@ class Question extends Model implements FormItemElement
     public function getTitle(): string
     {
         return $this->title;
+    }
+
+    public function formItems()
+    {
+        return $this->morphMany(
+            FormItem::class,
+            FormItem::RELATION_ELEMENT,
+            FormItem::ELEMENT_TYPE,
+            FormItem::ELEMENT_UUID
+        );
+    }
+
+    public function newCollection(array $models = []): QuestionCollection
+    {
+        return new QuestionCollection($models);
     }
 }

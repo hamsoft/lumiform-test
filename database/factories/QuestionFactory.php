@@ -25,7 +25,6 @@ class QuestionFactory extends Factory
             Question::NOTES_ALLOWED => fake()->boolean(),
             Question::PHOTOS_ALLOWED => fake()->boolean(),
             Question::ISSUES_ALLOWED => fake()->boolean(),
-
             Question::NEGATIVE => fake()->boolean(),
             Question::RESPONDED => fake()->boolean(),
             Question::REQUIRED => fake()->boolean(),

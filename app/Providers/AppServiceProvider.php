@@ -2,29 +2,28 @@
 
 namespace App\Providers;
 
-use App\Models\Form\FormItem;
 use App\Models\Page;
 use App\Models\Question;
 use App\Models\Section;
-use App\Services\Form\FormItemElementService;
+use App\Services\AnswerService;
 use App\Services\Form\FormItemService;
 use App\Services\FormService;
 use App\Services\Implementations as ServiceImplementations;
-use App\Services\Implementations\PageService;
-use App\Services\Implementations\QuestionService;
-use App\Services\Implementations\SectionService;
-use Illuminate\Contracts\Foundation\Application;
+use App\Services\PageService;
+use App\Services\QuestionService;
+use App\Services\SectionService;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
     public array $singletons = [
-        FormService::class => ServiceImplementations\FormService::class,
-        FormItemService::class => ServiceImplementations\FormItemService::class,
-        QuestionService::class => ServiceImplementations\QuestionService::class,
-        PageService::class => ServiceImplementations\PageService::class,
-        SectionService::class => ServiceImplementations\SectionService::class,
+        FormService::class => ServiceImplementations\FormServiceImpl::class,
+        FormItemService::class => ServiceImplementations\FormItemServiceImpl::class,
+        QuestionService::class => ServiceImplementations\QuestionServiceImpl::class,
+        PageService::class => ServiceImplementations\PageServiceImpl::class,
+        SectionService::class => ServiceImplementations\SectionServiceImpl::class,
+        AnswerService::class => ServiceImplementations\AnswerServiceImpl::class,
     ];
 
     /**
