@@ -56,7 +56,7 @@ class QuestionnaireControllerTest extends TestCase
                 ],
                 'answers' => [
                     0 => [
-                        'lala' => 'blaa'
+                        'response' => 'blaa'
                     ],
                 ],
             ],
@@ -69,6 +69,7 @@ class QuestionnaireControllerTest extends TestCase
      * @param array $formItemsElementsData
      * @param array $answers
      * @param array $expectedFragments
+     * @param array $expectedStructure
      * @param string|null $formUuid
      *
      * @return void
@@ -77,6 +78,7 @@ class QuestionnaireControllerTest extends TestCase
         array $formItemsElementsData,
         array $answers,
         array $expectedFragments,
+        array $expectedStructure = [],
         ?string $formUuid = null
     ): void {
         if (!empty($formItemsElementsData)) {
@@ -96,8 +98,12 @@ class QuestionnaireControllerTest extends TestCase
         $response->assertUnprocessable();
 
         foreach ($expectedFragments as $expectedFragment) {
-            $response->assertJsonFragment($expectedFragment);
+            if (is_array($expectedFragment)) {
+                $response->assertJsonFragment($expectedFragment);
+            }
         }
+
+        $response->assertJsonStructure($expectedStructure);
     }
 
     public function provideSaveAnswersFailsData(): array
@@ -109,7 +115,7 @@ class QuestionnaireControllerTest extends TestCase
                 'expectedFragments' => [[
                     "answers" => ["The answers field is required."],
                     "uuid" => ["The uuid field is required."],
-                ]]
+                ]],
             ],
 
             'wrong form uuid' => [
@@ -119,6 +125,7 @@ class QuestionnaireControllerTest extends TestCase
                     "uuid" => ["The uuid field is required."],
                     "answers" => ["The answers field is required."],
                 ]],
+                'expectedStructure' => [],
                 'formUuid' => 'not-exists',
             ],
 
@@ -235,11 +242,18 @@ class QuestionnaireControllerTest extends TestCase
                     ],
                 ],
                 'answers' => [
-                    0 => [
+                    1 => [
                         'response' => '32131',
                     ],
                 ],
                 'expectedFragments' => [
+                    [],
+                ],
+                'expectedStructure' => [
+                    'message',
+                    'errors' => [
+                        'answers.required_questions'
+                    ],
                 ],
             ],
         ];

@@ -2,12 +2,13 @@
 
 namespace App\Http\Requests\Api\Questionnaire;
 
-use App\Collections\QuestionCollection;
+use App\Models\Answer;
 use App\Models\Form;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreAnswersRequest extends FormRequest
 {
+    public const ANSWERS = 'answers';
 
     /**
      * Determine if the user is authorized to make this request.
@@ -26,37 +27,18 @@ class StoreAnswersRequest extends FormRequest
      */
     public function rules(): array
     {
-        $this->attributes->set('answers.*.question_uuid', 'question_uuid');
+        $this->attributes->set(self::ANSWERS . '.*.question_uuid', 'question_uuid');
 
-        $this->validate([
-            'uuid' => 'bail|required|string|exists:' . Form::TABLE . ',' . Form::UUID,
-            'answers' => 'required|array',
-        ]);
-
-        $rules = [];
-
-        $key = 'answers';
-        foreach ($this->get($key) as $index => $answer) {
-            $position = $key . '.' . $index;
-
-            $field = 'question_uuid';
-            if (empty($answer[$field])) {
-                $rules[$position . '.' . $field] = 'required|string';
-                $this->attributes->set($position . '.' . $field, 'question_uuid');
-            }
-        }
-
-        return $rules;
+        return [
+            Form::UUID => 'bail|required|string|exists:' . Form::TABLE . ',' . Form::UUID,
+            self::ANSWERS => 'required|array',
+            self::ANSWERS . '.*.' . Answer::QUESTION_UUID => 'required|string',
+        ];
     }
 
     public function getFormUuid(): string
     {
-        return $this->get('uuid');
-    }
-
-    public function getAnswers(): array
-    {
-        return $this->get('answers', []);
+        return $this->get(Form::UUID);
     }
 
     public function attributes(): array
