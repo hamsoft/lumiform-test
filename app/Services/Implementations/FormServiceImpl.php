@@ -44,11 +44,10 @@ class FormServiceImpl implements FormServiceInterface
         foreach ($itemsData as $itemData) {
             $element = $this->formItemService->getOrCreateFormItemElement($itemData['type'], $itemData);
 
-            $formItem = $form->items()->create([
-                FormItem::ELEMENT_UUID => $element->getUuid(),
-                FormItem::ELEMENT_TYPE => $element->getElementType(),
-                FormItem::PARENT_UUID => $parent?->uuid,
-            ]);
+            $formItem = $form->items()->make();
+            $formItem->element()->associate($element);
+            $formItem->parent()->associate($parent);
+            $formItem->save();
 
             $this->prepareFormItems($form, $itemData['items'] ?? [], $formItem);;
         }

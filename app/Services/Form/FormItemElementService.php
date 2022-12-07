@@ -2,10 +2,10 @@
 
 namespace App\Services\Form;
 
-use App\Models\Form\FormItemElement;
+use App\Models\Model;
 use App\Services\ModelServices\WithDefaultValidationRules;
 
 interface FormItemElementService extends WithDefaultValidationRules
 {
-    public function findByUuidOrCreate(iterable $data): FormItemElement;
+    public function findByUuidOrCreate(iterable $data): Model;
 }

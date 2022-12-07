@@ -17,22 +17,12 @@ class Page extends Model implements FormItemElement
 
     public const TITLE = 'title';
 
-    public function getUuid(): string
-    {
-        return $this->uuid;
-    }
-
-    public function getElementType(): string
-    {
-        return self::MODEL_TYPE;
-    }
-
     protected $fillable = [
         self::TITLE,
     ];
 
-    public function getTitle(): string
+    public function getModelType(): string
     {
-        return $this->title;
+        return self::MODEL_TYPE;
     }
 }

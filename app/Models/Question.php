@@ -61,19 +61,9 @@ class Question extends Model implements FormItemElement
         self::RESPONSE_TYPE,
     ];
 
-    public function getUuid(): string
-    {
-        return $this->uuid;
-    }
-
-    public function getElementType(): string
+    public function getModelType(): string
     {
         return self::MODEL_TYPE;
-    }
-
-    public function getTitle(): string
-    {
-        return $this->title;
     }
 
     public function formItems()

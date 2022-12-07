@@ -2,11 +2,12 @@
 
 namespace App\Models\Form;
 
+/**
+ * @property string $uuid
+ * @property string $title
+ * @const string MODEL_TYPE
+ */
 interface FormItemElement
 {
-    public function getUuid(): string;
-
-    public function getElementType(): string;
-
-    public function getTitle(): string;
+    public function getModelType(): string;
 }

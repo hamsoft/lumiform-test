@@ -23,16 +23,6 @@ class Section extends Model implements FormItemElement
     public const WEIGHT = 'weight';
     public const REQUIRED = 'required';
 
-    public function getUuid(): string
-    {
-        return $this->uuid;
-    }
-
-    public function getElementType(): string
-    {
-        return self::MODEL_TYPE;
-    }
-
     protected $fillable = [
         self::TITLE,
         self::REPEAT,
@@ -40,8 +30,8 @@ class Section extends Model implements FormItemElement
         self::REQUIRED,
     ];
 
-    public function getTitle(): string
+    public function getModelType(): string
     {
-        return $this->title;
+        return self::MODEL_TYPE;
     }
 }

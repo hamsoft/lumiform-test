@@ -4,7 +4,6 @@ namespace Tests\Feature\Api;
 
 use App\Models\Answer;
 use App\Models\Form;
-use App\Models\Form\FormItem;
 use App\Models\Question;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -82,7 +81,6 @@ class QuestionnaireControllerTest extends TestCase
         ?string $formUuid = null
     ): void {
         if (!empty($formItemsElementsData)) {
-            /** @var Form $form */
             $form = Form::factory()->create();
 
             $answers = $this->prepareFormItemsAndAnswers($formItemsElementsData, $answers, $form);
@@ -262,14 +260,13 @@ class QuestionnaireControllerTest extends TestCase
     /**
      * @param $formItemsElementsData
      * @param array $answers
-     * @param \App\Models\Form\FormItemElement|\App\Models\Form $form
+     * @param \App\Models\Form $form
      *
      * @return array
      */
-    protected function prepareFormItemsAndAnswers($formItemsElementsData, array $answers, Form\FormItemElement|Form $form): array
+    protected function prepareFormItemsAndAnswers($formItemsElementsData, array $answers, Form $form): array
     {
         foreach ($formItemsElementsData as $key => $element) {
-            /** @var \App\Models\Form\FormItemElement $question */
             $question = Question::factory()->state([
                 Question::NOTES_ALLOWED => false,
                 Question::PHOTOS_ALLOWED => false,
@@ -279,10 +276,8 @@ class QuestionnaireControllerTest extends TestCase
                 Question::REQUIRED => false,
             ])->create($element[self::ELEMENT_DATA]);
 
-            $form->items()->create([
-                FormItem::ELEMENT_TYPE => $question->getElementType(),
-                FormItem::ELEMENT_UUID => $question->getUuid(),
-            ]);
+            $item = $form->items()->make();
+            $item->element()->associate($question)->save();
 
             if (empty($answers[$key])) {
                 continue;

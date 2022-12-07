@@ -4,13 +4,12 @@ namespace Tests\Feature\Api;
 
 use App\Models\Form;
 use App\Models\Form\FormItem;
-use App\Models\Form\FormItemElement;
+use App\Models\Model;
 use App\Models\Page;
 use App\Models\Question;
 use App\Models\Section;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
-use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
 class FormControllerTest extends TestCase
@@ -18,25 +17,21 @@ class FormControllerTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * @dataProvider provideCreateNewFormData
+     * @dataProvider provideCreateNewFormSuccessfullyData
      *
      * @param array $requestData
-     * @param int $expectedStatus
      * @param array $expectedFragments
      *
      * @return void
      */
-    public function testCreateNewForm(array $requestData, int $expectedStatus, array $expectedFragments): void
+    public function testCreateNewFormSuccessfully(array $requestData, array $expectedFragments): void
     {
         $response = $this->postJson('/api/form', $requestData);
 
-        $response->assertStatus($expectedStatus);
+        $response->assertCreated();
+
         foreach ($expectedFragments as $expectedFragment) {
             $response->assertJsonFragment($expectedFragment);
-        }
-
-        if (Response::HTTP_CREATED !== $expectedStatus) {
-            return;
         }
 
         $response->assertJsonStructure(['uuid', 'message',]);
@@ -44,14 +39,26 @@ class FormControllerTest extends TestCase
 
         $formData = $requestData;
         $formData[Form::UUID] = $response['uuid'];
+        $items = $formData['items'] ?? [];
         unset($formData['items']);
+
+
         $this->assertDatabaseHas(Form::TABLE, $formData);
+
+//        return;
+//        if (empty($items)) {
+//            return;
+//        }
+//
+//        foreach ($items as $item) {
+//            $form;
+//        }
     }
 
     /**
      * @return array[]
      */
-    public function provideCreateNewFormData(): array
+    public function provideCreateNewFormSuccessfullyData(): array
     {
         $this->refreshApplication();
         $formFactory = Form::factory();
@@ -62,18 +69,7 @@ class FormControllerTest extends TestCase
         return [
             'form without items' => [
                 'requestData' => $formFactory->make()->toArray(),
-                'expectedStatus' => Response::HTTP_CREATED,
                 'expectedFragments' => [['message' => 'Successfully Created']],
-            ],
-            'without title' => [
-                'requestData' => $formFactory->make([Form::TITLE => null])->toArray(),
-                'expectedStatus' => Response::HTTP_UNPROCESSABLE_ENTITY,
-                'expectedFragments' => [['The title field is required.']],
-            ],
-            'without description' => [
-                'requestData' => $formFactory->make([Form::DESCRIPTION => null])->toArray(),
-                'expectedStatus' => Response::HTTP_UNPROCESSABLE_ENTITY,
-                'expectedFragments' => [['The description field is required.']],
             ],
             'with items' => [
                 'requestData' => $formFactory->make([
@@ -86,11 +82,52 @@ class FormControllerTest extends TestCase
                                     'type' => 'section'
                                 ])->toArray()
                             ]
-                        ])->toArray()
+                        ])->toArray(),
+                        $questionFactory->make(['type' => Page::MODEL_TYPE])->toArray(),
                     ]
                 ])->toArray(),
-                'expectedStatus' => Response::HTTP_CREATED,
                 'expectedFragments' => [['message' => 'Successfully Created']],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider provideCreateNewFormFailData
+     *
+     * @param array $requestData
+     * @param array $expectedFragments
+     *
+     * @return void
+     */
+    public function testCreateNewFormFail(array $requestData, array $expectedFragments): void
+    {
+        $response = $this->postJson('/api/form', $requestData);
+
+        $response->assertUnprocessable();
+        foreach ($expectedFragments as $expectedFragment) {
+            $response->assertJsonFragment($expectedFragment);
+        }
+    }
+
+    /**
+     * @return array[]
+     */
+    public function provideCreateNewFormFailData(): array
+    {
+        $this->refreshApplication();
+        $formFactory = Form::factory();
+        $pageFactory = Page::factory();
+        $sectionFactory = Section::factory();
+        $questionFactory = Question::factory();
+
+        return [
+            'without title' => [
+                'requestData' => $formFactory->make([Form::TITLE => null])->toArray(),
+                'expectedFragments' => [['The title field is required.']],
+            ],
+            'without description' => [
+                'requestData' => $formFactory->make([Form::DESCRIPTION => null])->toArray(),
+                'expectedFragments' => [['The description field is required.']],
             ],
             'fail when page without title' => [
                 'requestData' => $formFactory->make([
@@ -118,7 +155,6 @@ class FormControllerTest extends TestCase
                         ])->toArray(), // Question in Section without Title
                     ]
                 ])->toArray(),
-                'expectedStatus' => Response::HTTP_UNPROCESSABLE_ENTITY,
                 'expectedFragments' => [
                     ['items.0.type' => ['The type field is required.']],
                     ['items.1.type' => ['The selected type is invalid.']],
@@ -175,15 +211,15 @@ class FormControllerTest extends TestCase
                     'type' => Form::MODEL_TYPE,
                     'items' => [
                         [
-                            'uuid' => $page->getUuid(),
-                            'type' => $page->getElementType(),
-                            'title' => $page->getTitle(),
+                            'uuid' => $page->uuid,
+                            'type' => Page::MODEL_TYPE,
+                            'title' => $page->title,
                             'items' => $this->mapQuestions($pageQuestions),
                         ],
                         [
-                            'uuid' => $section->getUuid(),
-                            'type' => $section->getElementType(),
-                            'title' => $section->getTitle(),
+                            'uuid' => $section->uuid,
+                            'type' => Section::MODEL_TYPE,
+                            'title' => $section->title,
                             'repeat' => $section->repeat,
                             'weight' => $section->weight,
                             'required' => $section->required,
@@ -206,20 +242,21 @@ class FormControllerTest extends TestCase
 
     /**
      * @param \Illuminate\Support\Collection $formItems
-     * @param \Illuminate\Support\Collection<FormItemElement> $elements
-     * @param \App\Models\Form\FormItemElement|null $parent
+     * @param \Illuminate\Support\Collection<Model> $elements
+     * @param \App\Models\Model|null $parent
      *
      * @return void
      */
-    private function prepareFormItems(Collection $formItems, iterable $elements, ?FormItemElement $parent = null): void
+    private function prepareFormItems(Collection $formItems, iterable $elements, ?Model $parent = null): void
     {
         foreach ($elements as $element) {
-            $formItems->push([
-                FormItem::ELEMENT_UUID => $element->getUuid(),
-                FormItem::ELEMENT_TYPE => $element->getElementType(),
-                FormItem::PARENT_UUID => $parent?->getUuid(),
-                FormItem::PARENT_TYPE => $parent?->getElementType(),
-            ]);
+            $formItem = FormItem::make();
+            $formItem->element()->associate($element);
+            if ($parent) {
+                $formItem->parent()->associate($parent);
+            }
+
+            $formItems->push($formItem->toArray());
         }
     }
 
@@ -231,9 +268,9 @@ class FormControllerTest extends TestCase
     protected function mapQuestion(Question $formQuestion): array
     {
         return [
-            'uuid' => $formQuestion->getUuid(),
-            'type' => $formQuestion->getElementType(),
-            'title' => $formQuestion->getTitle(),
+            'uuid' => $formQuestion->uuid,
+            'type' => Question::MODEL_TYPE,
+            'title' => $formQuestion->title,
             'image_id' => $formQuestion->image_id,
             'negative' => $formQuestion->negative,
             'notes_allowed' => $formQuestion->notes_allowed,
@@ -242,6 +279,10 @@ class FormControllerTest extends TestCase
             'responded' => $formQuestion->responded,
             'required' => $formQuestion->required,
             'response_type' => $formQuestion->response_type,
+            'params' => [
+                'response_set' => $formQuestion->responseSetUuid,
+                'multiple_selection' => $formQuestion->multiple_selection,
+            ],
         ];
     }
 

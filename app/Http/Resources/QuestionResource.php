@@ -26,6 +26,10 @@ class QuestionResource extends FormItemElementResource
         $data['responded'] = $this->responded;
         $data['required'] = $this->required;
         $data['response_type'] = $this->response_type;
+        $data['params'] = [
+            'response_set' => $this->response_set,
+            'multiple_selection' => $this->multiple_selection,
+        ];
 
         return $data;
     }

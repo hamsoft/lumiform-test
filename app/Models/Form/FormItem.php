@@ -2,6 +2,7 @@
 
 namespace App\Models\Form;
 
+use App\Models\Form;
 use App\Models\Model;
 use App\Models\Page;
 use App\Models\Question;
@@ -44,9 +45,19 @@ class FormItem extends Model
         ];
     }
 
+    public function form()
+    {
+        return $this->belongsTo(Form::class, self::FORM_UUID, Form::UUID);
+    }
+
     public function element()
     {
         return $this->morphTo(self::RELATION_ELEMENT, self::ELEMENT_TYPE, self::ELEMENT_UUID);
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(self::class, self::PARENT_UUID, self::UUID);
     }
 
     public function scopeWhereElementTypeQuestion($query)

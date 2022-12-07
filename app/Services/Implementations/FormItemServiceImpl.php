@@ -2,7 +2,7 @@
 
 namespace App\Services\Implementations;
 
-use App\Models\Form\FormItemElement;
+use App\Models\Model;
 use App\Models\Page;
 use App\Models\Question;
 use App\Models\Section;
@@ -27,7 +27,7 @@ class FormItemServiceImpl implements FormItemServiceInterface
         $this->container = $container;
     }
 
-    public function getOrCreateFormItemElement(string $type, array $elementData): FormItemElement
+    public function getOrCreateFormItemElement(string $type, array $elementData): Model
     {
         $elementServiceByType = $this->getElementServiceByType($type);
 

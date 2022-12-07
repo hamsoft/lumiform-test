@@ -21,9 +21,9 @@ class FormItemElementResource extends JsonResource
     public function toArray($request)
     {
         $data = [
-            'uuid' => $this->getUuid(),
-            'type' => $this->getElementType(),
-            'title' => $this->getTitle(),
+            'uuid' => $this->uuid,
+            'type' => $this->getModelType(),
+            'title' => $this->title,
         ];
 
         if (isset($this->additional[self::ITEMS])) {
