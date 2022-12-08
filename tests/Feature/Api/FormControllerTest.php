@@ -69,18 +69,17 @@ class FormControllerTest extends TestCase
     public function provideCreateNewFormSuccessfullyData(): array
     {
         $this->refreshApplication();
-        $formFactory = Form::factory();
         $pageFactory = Page::factory();
         $sectionFactory = Section::factory();
         $questionFactory = Question::factory();
 
         return [
             'form without items' => [
-                'requestData' => $formFactory->make()->toArray(),
+                'requestData' => $this->prepareFormRequest(),
                 'expectedFragments' => [['message' => 'Successfully Created']],
             ],
             'with items' => [
-                'requestData' => $formFactory->make([
+                'requestData' => $this->prepareFormRequest([
                     'items' => [
                         $pageFactory->make(['type' => Page::MODEL_TYPE])->toArray(),
                         $sectionFactory->make([
@@ -97,8 +96,8 @@ class FormControllerTest extends TestCase
                                 'type' => Page::MODEL_TYPE,
                             ])
                             ->toArray(),
-                    ]
-                ])->toArray(),
+                    ],
+                ]),
                 'expectedFragments' => [['message' => 'Successfully Created']],
             ],
         ];
@@ -128,22 +127,21 @@ class FormControllerTest extends TestCase
     public function provideCreateNewFormFailData(): array
     {
         $this->refreshApplication();
-        $formFactory = Form::factory();
         $pageFactory = Page::factory();
         $sectionFactory = Section::factory();
         $questionFactory = Question::factory();
 
         return [
             'without title' => [
-                'requestData' => $formFactory->make([Form::TITLE => null])->toArray(),
+                'requestData' => $this->prepareFormRequest([Form::TITLE => null]),
                 'expectedFragments' => [['The title field is required.']],
             ],
             'without description' => [
-                'requestData' => $formFactory->make([Form::DESCRIPTION => null])->toArray(),
+                'requestData' => $this->prepareFormRequest([Form::DESCRIPTION => null]),
                 'expectedFragments' => [['The description field is required.']],
             ],
             'fail when page without title' => [
-                'requestData' => $formFactory->make([
+                'requestData' => $this->prepareFormRequest([
                     'items' => [
                         $pageFactory->make(['type' => null])->toArray(), // Without type
                         $pageFactory->make(['type' => 'error-item'])->toArray(), // Item type not exists
@@ -162,18 +160,18 @@ class FormControllerTest extends TestCase
                                             'title' => null,
                                         ]),
                                         $questionFactory->make(['type' => Question::MODEL_TYPE,]),
-                                    ]
+                                    ],
                                 ]),
                             ],
-                        ])->toArray(), // Question in Section without Title
-                    ]
-                ])->toArray(),
+                        ])->toArray(),
+                    ],
+                ]),
                 'expectedFragments' => [
-                    ['items.0.type' => ['The type field is required.']],
-                    ['items.1.type' => ['The selected type is invalid.']],
-                    ['items.2.title' => ['The title field is required.']],
-                    ['items.3.title' => ['The title field is required.']],
-                    ['items.4.items.0.items.1.title' => ['The title field is required.']],
+                    ['checklist.form.items.0.type' => ['The type field is required.']],
+                    ['checklist.form.items.1.type' => ['The selected type is invalid.']],
+                    ['checklist.form.items.2.title' => ['The title field is required.']],
+                    ['checklist.form.items.3.title' => ['The title field is required.']],
+                    ['checklist.form.items.4.items.0.items.1.title' => ['The title field is required.']],
                 ],
             ],
         ];
@@ -310,5 +308,23 @@ class FormControllerTest extends TestCase
     protected function mapQuestions(Collection $questions): array
     {
         return $questions->map(fn($question) => $this->mapQuestion($question))->toArray();
+    }
+
+    /**
+     * @param array $formData
+     *
+     * @return mixed
+     */
+    protected function prepareFormRequest(array $formData = []): array
+    {
+        return Form::factory()->count(1)->make($formData)->map(fn($form) => [
+            'checklist' => [
+                'checklist_title' => $form->title,
+                'checklist_description' => $form->description,
+                'form' => [
+                    'items' => $form->items ?? [],
+                ]
+            ],
+        ])->first();
     }
 }

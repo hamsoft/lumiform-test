@@ -20,14 +20,6 @@ class FormServiceImpl implements FormServiceInterface
         $this->formItemService = $formItemService;
     }
 
-    public function getDefaultValidationRules(): array
-    {
-        return [
-            Form::TITLE => 'required',
-            Form::DESCRIPTION => 'required',
-        ];
-    }
-
     public function createForm(array $formData, array $itemsData = []): Form
     {
         return DB::transaction(function () use ($formData, $itemsData) {

@@ -4,7 +4,6 @@ namespace App\Http\Requests\Api\Form;
 
 use App\Models\Form;
 use App\Services\Form\FormItemService;
-use App\Services\FormService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
@@ -36,13 +35,22 @@ class NewFormRequest extends FormRequest
      */
     public function rules(): array
     {
-        $formService = app()->make(FormService::class);
         $this->formItemService = app()->make(FormItemService::class);
         $this->availableItemTypes = Form\FormItem::getAvailableTypes();
 
-        $rules = new Collection($formService->getDefaultValidationRules());
+        $rules = new Collection([
+            'checklist' => 'required',
+            'checklist.checklist_title' => 'required|string',
+            'checklist.checklist_description' => 'required|string',
+            'checklist.form.items' => 'array',
+        ]);
 
-        $this->addRulesForNestedItems($rules, 'items', $this->get('items', []));
+        $this->attributes->set('checklist.checklist_title', 'title');
+        $this->attributes->set('checklist.checklist_description', 'description');
+        $this->attributes->set('checklist.items', 'items');
+
+        $items = $this->get('checklist', [])['form']['items'] ?? [];
+        $this->addRulesForNestedItems($rules, 'checklist.form.items', $items);
 
         return $rules->toArray();
     }

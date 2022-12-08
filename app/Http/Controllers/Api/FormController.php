@@ -22,7 +22,12 @@ class FormController extends ApiController
      */
     public function createNewForm(NewFormRequest $request, FormService $formService): JsonResponse
     {
-        $form = $formService->createForm($request->validated(), $request->get('items', []));
+        $formData = [
+            Form::TITLE => $request->validated('checklist.checklist_title'),
+            Form::DESCRIPTION => $request->validated('checklist.checklist_description'),
+        ];
+
+        $form = $formService->createForm($formData, $request->get('items', []));
 
         return $this->storeResponse([
             'uuid' => $form->uuid,
