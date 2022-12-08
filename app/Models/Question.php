@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $response_type
  * @property string $response_set_uuid
  * @property boolean $multiple_selection
+ * @property-read  \App\Models\ResponseSet $responseSet
  * @method QuestionCollection get()
  */
 class Question extends Model implements FormItemElement

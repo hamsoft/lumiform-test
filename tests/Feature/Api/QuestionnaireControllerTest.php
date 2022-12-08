@@ -5,6 +5,8 @@ namespace Tests\Feature\Api;
 use App\Models\Answer;
 use App\Models\Form;
 use App\Models\Question;
+use App\Models\Response;
+use App\Models\ResponseSet;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
@@ -15,6 +17,8 @@ class QuestionnaireControllerTest extends TestCase
 
     private const ITEM_TYPE = 'type';
     private const ELEMENT_DATA = 'data';
+    private const SELECTED_RESPONSES = 'selected_responses';
+    private const RESPONSE_UUIDS = 'response_uuids';
 
     /**
      * @dataProvider provideSaveAnswersSuccessfullyData
@@ -46,7 +50,7 @@ class QuestionnaireControllerTest extends TestCase
         $this->refreshApplication();
 
         return [
-            'without answers' => [
+            'selected answer' => [
                 'items' => [
                     0 => [
                         self::ITEM_TYPE => Question::MODEL_TYPE,
@@ -55,7 +59,7 @@ class QuestionnaireControllerTest extends TestCase
                 ],
                 'answers' => [
                     0 => [
-                        'response' => 'blaa'
+                        'responses' => [],
                     ],
                 ],
             ],
@@ -127,18 +131,21 @@ class QuestionnaireControllerTest extends TestCase
                 'formUuid' => 'not-exists',
             ],
 
-            'without answers' => [
+            'without responses' => [
                 'items' => [
                     [
                         self::ITEM_TYPE => Question::MODEL_TYPE,
                         static::ELEMENT_DATA => [],
+                        self::SELECTED_RESPONSES => [],
                     ],
                 ],
                 'answers' => [
-                    []
+                    [
+                        Answer::QUESTION_UUID => null
+                    ],
                 ],
                 'expectedFragments' => [
-                    ["answers.0.question_uuid" => ["The question_uuid field is required."]],
+                    ["answers.0.response_uuids" => ["The responses field is required."]],
                 ],
             ],
 
@@ -267,27 +274,61 @@ class QuestionnaireControllerTest extends TestCase
     protected function prepareFormItemsAndAnswers($formItemsElementsData, array $answers, Form $form): array
     {
         foreach ($formItemsElementsData as $key => $element) {
-            $question = Question::factory()->state([
+
+            $questionFactory = Question::factory();
+
+            $questionFactory->state([
                 Question::NOTES_ALLOWED => false,
                 Question::PHOTOS_ALLOWED => false,
                 Question::ISSUES_ALLOWED => false,
                 Question::NEGATIVE => false,
                 Question::RESPONDED => false,
                 Question::REQUIRED => false,
-            ])->create($element[self::ELEMENT_DATA]);
+            ]);
 
-            $item = $form->items()->make();
-            $item->element()->associate($question)->save();
+            $questionFactory->for(ResponseSet::factory()->has(Response::factory()));
 
-            if (empty($answers[$key])) {
-                continue;
-            }
+            /** @var Question $question */
+            $question = $questionFactory->create($element[self::ELEMENT_DATA]);
 
-            if ($element[self::ITEM_TYPE] === Question::MODEL_TYPE) {
-                $answers[$key][Answer::QUESTION_UUID] = $question->uuid;
+            $item = $form->makeItem();
+            $item->setElement($question);
+            $item->save();
+
+            if (isset($answers[$key])) {
+                $answers[$key] = $this->prepareAnswer($question, $element, $answers[$key]);
             }
         }
+
         return $answers;
     }
 
+    /**
+     * @param \App\Models\Question $question
+     * @param $element
+     *
+     * @param array $answer
+     *
+     * @return array
+     */
+    protected function prepareAnswer(Question $question, $element, array &$answer): array
+    {
+        $answer[Answer::QUESTION_UUID] = $question->uuid;
+
+        if ($element[self::ITEM_TYPE] !== Question::MODEL_TYPE) {
+            return $answer;
+        }
+
+
+        $selectResponses = $element[self::SELECTED_RESPONSES] ?? [0];
+        $responses = $question->responseSet ? $question->responseSet->responses : [];
+
+        $answer[self::RESPONSE_UUIDS] = [];
+        foreach ($selectResponses as $responseKey) {
+            $responseUuid = $responses[$responseKey] ?? fake()->uuid();
+            $answer[self::RESPONSE_UUIDS][] = $responseUuid;
+        }
+
+        return $answer;
+    }
 }

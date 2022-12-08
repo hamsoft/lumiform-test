@@ -27,12 +27,13 @@ class StoreAnswersRequest extends FormRequest
      */
     public function rules(): array
     {
-        $this->attributes->set(self::ANSWERS . '.*.question_uuid', 'question_uuid');
+        $questionUuidKey = self::ANSWERS . '.*.' . Answer::QUESTION_UUID;
+        $this->attributes->set($questionUuidKey, 'question_uuid');
 
         return [
             Form::UUID => 'bail|required|string|exists:' . Form::TABLE . ',' . Form::UUID,
             self::ANSWERS => 'required|array',
-            self::ANSWERS . '.*.' . Answer::QUESTION_UUID => 'required|string',
+            $questionUuidKey => 'required|string',
         ];
     }
 

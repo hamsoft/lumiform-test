@@ -37,4 +37,9 @@ class Form extends Model
     {
         return $this->items()->with(FormItem::RELATION_ELEMENT);
     }
+
+    public function makeItem(): FormItem
+    {
+        return $this->items()->make();
+    }
 }

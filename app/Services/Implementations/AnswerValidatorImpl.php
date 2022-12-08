@@ -4,6 +4,7 @@ namespace App\Services\Implementations;
 
 use App\Collections\QuestionCollection;
 use App\Models\Answer;
+use App\Models\Question;
 use App\Services\AnswerValidator;
 use App\Services\QuestionService;
 use Illuminate\Validation\Factory as ValidationFactory;
@@ -45,6 +46,12 @@ class AnswerValidatorImpl implements AnswerValidator
             if(!$question) {
                 continue;
             }
+
+            // TODO Create rules for different types of question
+
+            $rules[$prefixKey . '.' . $key . '.response_uuids'] = 'required|array';
+            $rules[$prefixKey . '.' . $key . '.response_uuids.*'] = 'required|string';
+            $this->attributes[$prefixKey . '.' . $key . '.response_uuids'] = 'responses';
 
             $rules[$prefixKey . '.' . $key . '.' . Answer::QUESTION_UUID] = 'required|string';
             $rules[$prefixKey . '.' . $key . '.notes'] = $question->notes_allowed ? 'string' : 'prohibited';

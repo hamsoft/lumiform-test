@@ -64,4 +64,10 @@ class FormItem extends Model
     {
         return $query->where(self::ELEMENT_TYPE, Question::MODEL_TYPE);
     }
+
+    public function setElement(Model $element)
+    {
+        return $this->element()->associate($element);
+    }
+
 }
