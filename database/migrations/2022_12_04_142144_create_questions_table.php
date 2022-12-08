@@ -26,6 +26,12 @@ return new class extends Migration {
             $table->boolean('required');
 
             $table->string('response_type');
+            $table->uuid('response_set_uuid')->nullable();
+            $table->boolean('multiple_selection');
+
+            $table->foreign('response_set_uuid')
+                ->on('response_sets')
+                ->references('uuid');
 
             $table->timestamps();
         });

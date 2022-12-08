@@ -27,6 +27,8 @@ class QuestionTest extends TestCase
             Question::RESPONDED,
             Question::REQUIRED,
             Question::RESPONSE_TYPE,
+            Question::RESPONSE_SET_UUID,
+            Question::MULTIPLE_SELECTION,
         ]);
     }
 }

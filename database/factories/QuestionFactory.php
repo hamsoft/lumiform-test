@@ -30,6 +30,7 @@ class QuestionFactory extends Factory
             Question::REQUIRED => fake()->boolean(),
 
             Question::RESPONSE_TYPE => fake()->randomElement(Question::RESPONSE_TYPES),
+            Question::MULTIPLE_SELECTION => false,
         ];
     }
 }

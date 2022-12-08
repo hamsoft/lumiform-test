@@ -6,6 +6,7 @@ use App\Collections\QuestionCollection;
 use App\Models\Form\FormItem;
 use App\Models\Form\FormItemElement;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property string $title
@@ -17,6 +18,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property boolean $responded
  * @property boolean $required
  * @property string $response_type
+ * @property string $response_set_uuid
+ * @property boolean $multiple_selection
  * @method QuestionCollection get()
  */
 class Question extends Model implements FormItemElement
@@ -35,6 +38,8 @@ class Question extends Model implements FormItemElement
     public const RESPONDED = 'responded';
     public const REQUIRED = 'required';
     public const RESPONSE_TYPE = 'response_type';
+    public const MULTIPLE_SELECTION = 'multiple_selection';
+    public const RESPONSE_SET_UUID = 'response_set_uuid';
 
     public const RELATION_FORM_ITEM = 'formItems';
 
@@ -47,6 +52,7 @@ class Question extends Model implements FormItemElement
         self::ISSUES_ALLOWED => 'boolean',
         self::RESPONDED => 'boolean',
         self::REQUIRED => 'boolean',
+        self::MULTIPLE_SELECTION => 'boolean'
     ];
 
     protected $fillable = [
@@ -59,6 +65,7 @@ class Question extends Model implements FormItemElement
         self::RESPONDED,
         self::REQUIRED,
         self::RESPONSE_TYPE,
+        self::MULTIPLE_SELECTION,
     ];
 
     public function getModelType(): string
@@ -74,6 +81,11 @@ class Question extends Model implements FormItemElement
             FormItem::ELEMENT_TYPE,
             FormItem::ELEMENT_UUID
         );
+    }
+
+    public function responseSet(): BelongsTo
+    {
+        return $this->belongsTo(ResponseSet::class);
     }
 
     public function newCollection(array $models = []): QuestionCollection

@@ -7,6 +7,7 @@ use App\Models\Form\FormItem;
 use App\Models\Model;
 use App\Models\Page;
 use App\Models\Question;
+use App\Models\ResponseSet;
 use App\Models\Section;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
@@ -38,21 +39,28 @@ class FormControllerTest extends TestCase
         $this->assertNotEmpty($response['uuid']);
 
         $formData = $requestData;
-        $formData[Form::UUID] = $response['uuid'];
+        $formData[Model::UUID] = $response['uuid'];
         $items = $formData['items'] ?? [];
         unset($formData['items']);
 
+        $form = Form::findOrFail($formData[Model::UUID]);
 
-        $this->assertDatabaseHas(Form::TABLE, $formData);
+        $this->assertModelExists($form);
 
-//        return;
-//        if (empty($items)) {
-//            return;
-//        }
-//
-//        foreach ($items as $item) {
-//            $form;
-//        }
+        if (empty($items)) {
+            return;
+        }
+
+        $form->load('itemsWithElements');
+
+        foreach ($items as $item) {
+            $element = $form->itemsWithElements
+                ->where(FormItem::ELEMENT_TYPE, $item['type'])
+                ->where(FormItem::RELATION_ELEMENT . '.title', $item['title'])
+                ->first();
+
+            $this->assertModelExists($element);
+        }
     }
 
     /**
@@ -83,7 +91,12 @@ class FormControllerTest extends TestCase
                                 ])->toArray()
                             ]
                         ])->toArray(),
-                        $questionFactory->make(['type' => Page::MODEL_TYPE])->toArray(),
+                        $questionFactory
+                            ->for(ResponseSet::factory())
+                            ->make([
+                                'type' => Page::MODEL_TYPE,
+                            ])
+                            ->toArray(),
                     ]
                 ])->toArray(),
                 'expectedFragments' => [['message' => 'Successfully Created']],
@@ -191,7 +204,10 @@ class FormControllerTest extends TestCase
         $this->prepareFormItems($formItems, $sectionQuestions, $section);
 
         /** @var Question $formQuestion */
-        $formQuestion = Question::factory()->create();
+        $formQuestion = Question::factory()
+            ->for(ResponseSet::factory()->create())
+            ->create();
+
         $this->prepareFormItems($formItems, [$formQuestion]);
 
         $form->items()->createMany($formItems);
@@ -280,7 +296,7 @@ class FormControllerTest extends TestCase
             'required' => $formQuestion->required,
             'response_type' => $formQuestion->response_type,
             'params' => [
-                'response_set' => $formQuestion->responseSetUuid,
+                'response_set' => $formQuestion->response_set_uuid,
                 'multiple_selection' => $formQuestion->multiple_selection,
             ],
         ];
