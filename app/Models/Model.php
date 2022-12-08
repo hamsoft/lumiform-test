@@ -17,6 +17,5 @@ abstract class Model extends EloquentModel
     use HasUuids;
 
     public const UUID = 'uuid';
-    protected $primaryKey = 'uuid';
 
 }
