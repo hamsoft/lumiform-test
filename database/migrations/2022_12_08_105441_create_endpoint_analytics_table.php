@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('name')->nullable();
             $table->uuid('user_uuid')->nullable();
             $table->timestamps();
+
+            $table->index(['path', 'method']);
         });
     }
 
